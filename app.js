@@ -350,7 +350,7 @@ function draw(){const navPage=page==='configure'?'settings':page==='practice'||p
  document.querySelectorAll('.navbtn,.mobile-nav-link').forEach(x=>{const on=x.dataset.page===navPage;x.classList.toggle('selected',on);x.setAttribute('aria-current',on?'page':'false')});
  const x=stats();$('#sideSummary').innerHTML=`<strong>${x.tried} / ${QUESTIONS.length}</strong>preguntas practicadas<br><strong style="font-size:18px;margin-top:7px">${x.pct} %</strong>acierto total`;
  if(page==='home')home();else if(page==='configure')configure();else if(page==='practice')practice();else if(page==='summary')summaryPage();else if(page==='diagnosis')diagnosisPage();else if(page==='questions'||page==='errors'||page==='favs')listing(page);else if(page==='stats')statsPage();else if(page==='guide')guidePage();else if(page==='glossary')glossaryPage();else if(page==='settings')settingsPage();else home();
- document.querySelectorAll('.doc-image').forEach(i=>i.addEventListener('click',()=>{let v=$('#imageViewer');$('#viewerImg').src=i.src;v.classList.remove('hidden')}));
+ document.querySelectorAll('.doc-image').forEach(i=>i.addEventListener('click',()=>{if(i.closest('button.option'))return;let v=$('#imageViewer');$('#viewerImg').src=i.src;v.classList.remove('hidden')}));
  document.querySelectorAll('.navbtn,.mobile-nav-link').forEach(x=>x.onclick=()=>navigate(x.dataset.page));
  $('#closeViewer').onclick=()=>$('#imageViewer').classList.add('hidden');$('#imageViewer').onclick=e=>{if(e.target.id==='imageViewer')e.currentTarget.classList.add('hidden')};
 }
