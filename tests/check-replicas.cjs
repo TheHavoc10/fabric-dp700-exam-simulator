@@ -9,10 +9,11 @@
  const {DP700_QUESTIONS:q,DP700_SPECIALS:s,DP700_INTERACTIVE:i,DP700_REPLICAS:r,DP700_UI:ui}=context.window;
  const normalize=v=>String(v||'').toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/^[\s.,;()'"]+|[\s.,;()'"]+$/g,'').replace(/\s+/g,' ').trim();
  assert.equal(q.length,139,'El banco debe mantener 139 preguntas');
- assert.equal(Object.keys(s).length,42,'El banco debe incluir 42 preguntas con campos');
+ assert.equal(Object.keys(s).length,43,'El banco debe incluir 43 claves de respuesta visuales');
  assert.equal(Object.keys(r).length,43,'Las 43 visuales deben tener una interacción');
  const missing=[];
  for(const [id,fields] of Object.entries(s)){
+  if(id==='54')continue; // pregunta 54 se corrige marcando imágenes A y D
   const item=i[id],replica=r[id],ques=q.find(x=>x.id===Number(id));
   assert.ok(item&&replica&&ques,'Falta la configuración de '+id);
   const mapped=fields.map((f,idx)=>{
