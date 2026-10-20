@@ -2,6 +2,9 @@
    Los campos que no cuentan con alternativas verificables mantienen la revisión guiada. */
 window.DP700_REPLICAS={
   7:{mode:'mapping',label:'Selecciona el componente para cada capa'},
+  8:{mode:'code',label:'Completa la consulta de diagnóstico del Warehouse',code:'SELECT last_run_start_time, last_run_command\nFROM {{0}}\nWHERE last_run_total_elapsed_time_ms > 7200000\n  AND {{1}};'},
+  10:{mode:'match',label:'Asigna una función KQL a cada declaración',keepFirstImage:true},
+  67:{mode:'mapping',label:'Elige la vista para cada dato de diagnóstico'},
   12:{mode:'code',label:'Completa la consulta T-SQL',
     preamble:'La tabla de referencia y las columnas se mantienen visibles.',
     code:'{{0}}(SO.ModifiedDate) AS OrderDate,\n    P.Name AS ProductName,\n    SUM(SO.OrderQty) AS OrderQty\nFROM dbo.SalesOrderDetail AS SO\nINNER JOIN dbo.Product AS P\n    ON P.ProductID = SO.ProductID\nGROUP BY {{1}}\nORDER BY OrderDate;',
