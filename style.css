@@ -168,3 +168,54 @@
 :root[data-theme="dark"] .case-tab.selected {background:#324377;color:#fff;border-bottom-color:#a8b5ff}
 :root[data-theme="dark"] .case-subheading {color:#c0d3f2}
 :root[data-theme="dark"] .why-btn[aria-expanded="true"] {background:#344467;color:#f3f7ff;border-color:#8796ef}
+
+
+/* DP-700 · recreación de controles originales de Microsoft Learn / examen */
+.replica-panel{margin:18px 0 7px;padding:clamp(13px,2.7vw,22px);border:1px solid var(--line);border-radius:15px;background:var(--card2,var(--card));color:var(--ink)}
+.replica-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:15px}
+.replica-heading strong,.replica-pool>strong,.replica-destinations>strong{font-weight:800}
+.replica-hint{font-size:12px;color:var(--muted);line-height:1.5}
+.replica-map{display:grid;gap:11px}
+.replica-map-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,1fr);align-items:center;gap:12px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card)}
+.replica-select{width:100%;max-width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font:inherit;min-height:43px;white-space:normal}
+.replica-binary{display:grid;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.replica-binary-head,.replica-binary-row{display:grid;grid-template-columns:minmax(0,1fr) 70px 70px;align-items:stretch}
+.replica-binary-head{background:var(--card);font-size:12px;font-weight:800;color:var(--muted)}
+.replica-binary-head>*{padding:9px}
+.replica-binary-row{background:var(--card);border-top:1px solid var(--line)}
+.replica-statement{padding:12px;font-size:13px;line-height:1.5}
+.replica-binary-btn{background:transparent;border:0;border-left:1px solid var(--line);color:var(--ink);font-weight:800;cursor:pointer}
+.replica-binary-btn.selected{background:var(--brand);color:#fff}
+.replica-binary-btn:disabled:not(.selected){opacity:.65}
+.replica-code{margin:12px 0 0;border:1px solid var(--line);border-radius:11px;padding:16px;background:var(--card);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;overflow-x:auto;line-height:2.5;font-size:clamp(11px,1.7vw,14px)}
+.replica-code code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap}
+.replica-code .replica-select{font-family:inherit;min-width:135px;max-width:min(100%,380px);font-size:12px;display:inline-block;vertical-align:middle}
+.replica-table{margin:10px 0 12px;overflow-x:auto}
+.replica-table .doc-image{display:block;max-width:100%;height:auto;margin-top:8px}
+.replica-drag-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:13px}
+.replica-pool,.replica-destinations{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:13px;min-width:0}
+.replica-source-grid{display:grid;gap:8px;margin-top:11px}
+.replica-token{color:var(--ink);border:1px solid var(--line);background:var(--card2,var(--card));padding:10px 12px;border-radius:9px;text-align:left;line-height:1.4;cursor:grab;overflow-wrap:anywhere;font-size:13px}
+.replica-token.picked{outline:2px solid var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--card))}
+.replica-destinations>strong{display:block;margin-bottom:10px}
+.replica-destination-row{display:flex;align-items:stretch;gap:7px;margin-bottom:8px}
+.replica-destination{min-height:70px;min-width:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:11px 13px;border:2px dashed var(--line);border-radius:10px;cursor:pointer}
+.replica-destination:hover,.replica-destination:focus-visible{border-color:var(--brand);outline:none}
+.replica-destination span{font-size:11px;color:var(--muted)}
+.replica-destination strong{font-size:13px;overflow-wrap:anywhere}
+.replica-target-actions{display:flex;flex-direction:column;gap:3px}
+.replica-small{min-width:30px;min-height:28px;border-radius:7px;background:var(--card2,var(--card));color:var(--ink);border:1px solid var(--line);cursor:pointer}
+.replica-small:disabled{opacity:.3}
+.record-image{margin-top:9px;overflow-x:auto;max-width:100%}
+.record-image .doc-image{max-width:100%;height:auto}
+@media(max-width:680px){
+ .replica-panel{padding:12px}
+ .replica-heading{align-items:flex-start}
+ .replica-drag-layout{grid-template-columns:1fr}
+ .replica-map-row{grid-template-columns:1fr}
+ .replica-binary-head,.replica-binary-row{grid-template-columns:minmax(0,1fr) 46px 46px}
+ .replica-statement{padding:9px;font-size:12px}
+ .replica-code{padding:10px;font-size:12px;line-height:2.8}
+ .replica-code .replica-select{width:auto;max-width:100%;min-width:135px}
+ .record-image img{max-width:100%}
+}
