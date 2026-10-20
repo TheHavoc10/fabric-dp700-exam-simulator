@@ -13,9 +13,11 @@ const KEY='fabric-dp700-simulator-v1';
 const $=x=>document.querySelector(x);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const byId=Object.fromEntries(QUESTIONS.map(q=>[q.id,q]));
 const allTopics=[...new Set(QUESTIONS.map(q=>q.topic))].sort((a,b)=>a.localeCompare(b,'es'));
-function fresh(){return {v:1,history:{},stars:[],session:null,settings:{count:40,minutes:90,filter:'all',topic:'all',mode:'practice'},date:null}}
-function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.v===1)return {...fresh(),...v,settings:{...fresh().settings,...(v.settings||{})}}}catch(e){console.warn(e)}return fresh()}
+function fresh(){return {v:1,history:{},stars:[],session:null,settings:{count:40,minutes:'',timePreferenceV2:true,filter:'all',topic:'all',mode:'practice'},date:null}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.v===1){const settings={...fresh().settings,...(v.settings||{})};if(!v.settings?.timePreferenceV2){if(Number(settings.minutes)===90)settings.minutes='';settings.timePreferenceV2=true}return {...fresh(),...v,settings}}}catch(e){console.warn(e)}return fresh()}
 let app=load(),page='home',bankFilter='all',bankTopic='all',bankSearch='',toastTimer=null,glossaryFilter='Todas',glossarySearch='',glossaryFlipped={};
+const caseTabByName=Object.create(null);
+const casePanelCache=new Map();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(app))}catch(e){msg('No se ha podido guardar el progreso en este navegador')}}
 const el=(tag,cl,txt)=>{const x=document.createElement(tag);if(cl)x.className=cl;if(txt!==undefined)x.textContent=txt;return x};
 const validHistory=q=>app.history[q.id]||{ok:0,bad:0,last:null};
@@ -26,8 +28,8 @@ const manual=q=>q.needsManualReview && !(slotsFor(q).length&&slotsFor(q).every(f
 const lbl=q=>slotsFor(q).length?'Completar respuesta'+(manual(q)?' · evaluación guiada':''):q.type==='multiple'?'Selección múltiple':manual(q)?'Revisión visual / manual':'Opción única';
 function msg(s){const t=$('#toast');t.textContent=s;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800)}
 function fmtTime(ms){const s=Math.max(0,Math.floor(ms/1000));return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`}
-function timeLeft(){let s=app.session;if(!s||s.mode!=='exam'||s.finished)return null;return s.startedAt+s.minutes*60000-Date.now()}
-function updateClock(){const s=app.session;if(!s||s.finished||s.mode!=='exam')return;let left=timeLeft();if(left<=0){finish(true);return}const x=$('#clock');if(x)x.textContent='⏱ '+fmtTime(left)}
+function timeLeft(){let s=app.session;if(!s||s.mode!=='exam'||s.finished||!Number.isFinite(s.minutes)||s.minutes<=0)return null;return s.startedAt+s.minutes*60000-Date.now()}
+function updateClock(){const s=app.session;if(!s||s.finished||s.mode!=='exam')return;let left=timeLeft();if(left===null)return;if(left<=0){finish(true);return}const x=$('#clock');if(x)x.textContent='⏱ '+fmtTime(left)}
 function navigate(n){page=n;draw();window.scrollTo({top:0,behavior:'instant'})}
 function stats(){let tried=0,correct=0,wrong=0;for(const q of QUESTIONS){const h=validHistory(q);if(h.ok+h.bad){tried++;correct+=h.ok;wrong+=h.bad}}return {tried,correct,wrong,pct:correct+wrong?Math.round(100*correct/(correct+wrong)):0}}
 function header(eyebrow,title,subtitle=''){return `<div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p>`}
@@ -40,9 +42,9 @@ function home(){const s=stats();let html=header('Preparación de certificación'
 function configure(){let x=app.settings;
  const options=(vals,selected)=>vals.map(v=>`<option value="${esc(v[0])}" ${v[0]===selected?'selected':''}>${esc(v[1])}</option>`).join('');
  let html=header('Personaliza tu estudio','Nueva sesión','Configura un ejercicio breve o un simulacro completo. No se mezclará tu historial con el de Databricks.');
- html+=`<div class="card pad"><div class="toolbar mb"><label class="field">Modo<select id="setMode">${options([['practice','Práctica (corrección inmediata)'],['exam','Examen (corrección al finalizar)']],x.mode)}</select></label><label class="field">Cantidad<select id="setCount">${options([10,20,40,60,100,139].map(v=>[String(v),v+' preguntas']),String(x.count))}</select></label><label class="field">Filtro<select id="setFilter">${options([['all','Todas'],['errors','Falladas'],['new','No practicadas'],['star','Favoritas'],['visual','Revisión manual'],['cases','Casos de estudio']],x.filter)}</select></label><label class="field">Temática<select id="setTopic">${options([['all','Todas las temáticas'],...allTopics.map(t=>[t,t])],x.topic)}</select></label><label class="field">Duración del simulacro (min)<input id="setTime" type="number" min="10" max="240" value="${x.minutes}"></label></div><p class="hint">Las preguntas se seleccionan aleatoriamente sin repetir dentro de la sesión. En modo examen las soluciones se muestran después de terminar. Los ejercicios de origen gráfico permiten completar sus respuestas; las abiertas tienen autoevaluación guiada para no penalizar sinónimos válidos.</p><div class="row mt"><button class="btn primary" id="run">Crear sesión</button><button class="btn" data-go="home">Cancelar</button></div></div>`;
+ html+=`<div class="card pad"><div class="toolbar mb"><label class="field">Modo<select id="setMode">${options([['practice','Práctica (corrección inmediata)'],['exam','Examen (corrección al finalizar)']],x.mode)}</select></label><label class="field">Cantidad<select id="setCount">${options([10,20,40,60,100,139].map(v=>[String(v),v+' preguntas']),String(x.count))}</select></label><label class="field">Filtro<select id="setFilter">${options([['all','Todas'],['errors','Falladas'],['new','No practicadas'],['star','Favoritas'],['visual','Revisión manual'],['cases','Casos de estudio']],x.filter)}</select></label><label class="field">Temática<select id="setTopic">${options([['all','Todas las temáticas'],...allTopics.map(t=>[t,t])],x.topic)}</select></label><label class="field">Tiempo (opcional, min)<input id="setTime" type="number" min="10" max="240" placeholder="Sin límite de tiempo" value="${x.minutes??''}"></label></div><p class="hint">Las preguntas se seleccionan aleatoriamente sin repetir dentro de la sesión. En modo examen las soluciones se muestran después de terminar. Los ejercicios de origen gráfico permiten completar sus respuestas; las abiertas tienen autoevaluación guiada para no penalizar sinónimos válidos.</p><div class="row mt"><button class="btn primary" id="run">Crear sesión</button><button class="btn" data-go="home">Cancelar</button></div></div>`;
  $('#main').innerHTML=`<div class="wrap">${html}</div>`;
- for(let [id,field,fn] of [['setMode','mode',v=>v],['setCount','count',Number],['setFilter','filter',v=>v],['setTopic','topic',v=>v],['setTime','minutes',Number]]){$('#'+id).onchange=e=>{app.settings[field]=fn(e.target.value);save()}}$('#run').onclick=()=>start();wireGo()}
+ for(let [id,field,fn] of [['setMode','mode',v=>v],['setCount','count',Number],['setFilter','filter',v=>v],['setTopic','topic',v=>v],['setTime','minutes',v=>v===''?'':Number(v)]]){$('#'+id).onchange=e=>{app.settings[field]=fn(e.target.value);save()}}$('#run').onclick=()=>start();wireGo()}
 function eligible(){const x=app.settings;return QUESTIONS.filter(q=>(x.topic==='all'||q.topic===x.topic)&&(
  x.filter==='all'||x.filter==='errors'&&validHistory(q).bad>0||x.filter==='new'&&!attempted(q)||x.filter==='star'&&app.stars.includes(q.id)||x.filter==='visual'&&manual(q)||x.filter==='cases'&&q.caseStudy))}
 function caseName(q){const m=q.title.match(/Caso de estudio\s*[–—-]\s*([^)]+)/i);return q.caseStudy?(m?m[1].trim():'Caso de estudio'):null}
@@ -59,7 +61,7 @@ function groupedSelection(candidates,limit){
 }
 function start(idsOverride=null){const candidates=idsOverride?idsOverride.map(id=>byId[id]).filter(Boolean):eligible();if(!candidates.length){msg('El filtro seleccionado no tiene preguntas');return}if(app.session&&!app.session.finished&&!confirm('Hay una sesión sin terminar. ¿Quieres sustituirla?'))return;
  const ids=idsOverride||groupedSelection(candidates,Number(app.settings.count)||40);
- app.session={mode:app.settings.mode,ids,i:0,answers:{},written:{},submitted:{},manual:{},reviewed:{},startedAt:Date.now(),minutes:Math.max(10,Math.min(240,Number(app.settings.minutes)||90)),finished:false};save();navigate('practice')}
+ app.session={mode:app.settings.mode,ids,i:0,answers:{},written:{},submitted:{},manual:{},reviewed:{},startedAt:Date.now(),minutes:app.settings.minutes===''||app.settings.minutes===null?null:Math.max(10,Math.min(240,Number(app.settings.minutes)||10)),finished:false};save();navigate('practice')}
 function current(){const s=app.session;return s?byId[s.ids[s.i]]:null}
 function hasAnswer(q){const s=app.session;if(slotsFor(q).length)return slotsFor(q).every((v,i)=>String(s.written?.[q.id]?.[i]||'').trim());return q.needsManualReview?true:!!(s.answers[q.id]?.length)}
 function graded(q){const s=app.session;return Boolean(s.submitted[q.id])}
@@ -68,7 +70,11 @@ function record(q,good){const h=validHistory(q);h[good?'ok':'bad']++;h.last=Date
 function submit(){let s=app.session,q=current();if(!s||!q||s.finished||s.mode!=='practice'||s.submitted[q.id]||!hasAnswer(q))return;if(!manual(q)){s.submitted[q.id]=true;record(q,grade(q))}else{s.submitted[q.id]=true}s.reviewed[q.id]=true;save();draw()}
 function setManual(good){let s=app.session,q=current();if(!s||!q||!manual(q)||!(s.finished||s.mode==='practice'&&s.submitted[q.id])||s.manual[q.id]!==undefined)return;s.manual[q.id]=good;record(q,good);save();draw()}
 function setWritten(index,value){const s=app.session,q=current();if(!s||!q||s.finished||s.submitted[q.id])return;s.written=s.written||{};s.written[q.id]=s.written[q.id]||{};s.written[q.id][index]=value;save();const b=$('#submit');if(b)b.disabled=!hasAnswer(q)}
-function selectOption(key){let s=app.session,q=current();if(!s||!q||s.finished||s.submitted[q.id])return;let a=s.answers[q.id]||[];s.answers[q.id]=q.type==='multiple'?(a.includes(key)?a.filter(x=>x!==key):[...a,key]):[key];save();draw()}
+function selectOption(key){let s=app.session,q=current();if(!s||!q||s.finished||s.submitted[q.id])return;let a=s.answers[q.id]||[];
+ // Igual que en Databricks: tocar dos veces la misma opción comprueba en práctica.
+ // En multirrespuesta, solo cuando hay tantas seleccionadas como exige la clave.
+ if(s.mode==='practice'&&a.includes(key)&&(q.type!=='multiple'||a.length===q.correct.length)){submit();return}
+ s.answers[q.id]=q.type==='multiple'?(a.includes(key)?a.filter(x=>x!==key):[...a,key]):[key];save();draw()}
 function reviewed(){let s=app.session,q=current();if(!s||!q||s.finished)return;s.reviewed[q.id]=true;save();draw()}
 function move(i){const s=app.session;if(!s)return;s.i=Math.max(0,Math.min(s.ids.length-1,i));save();draw();window.scrollTo({top:0,behavior:'instant'})}
 function hasAnsweredInExam(q,id){const s=app.session;return slotsFor(q).length?slotsFor(q).every((f,i)=>String(s.written?.[id]?.[i]||'').trim()):(s.answers[id]?.length>0)}
@@ -77,35 +83,92 @@ function finish(expired=false){let s=app.session;if(!s||s.finished)return;if(!ex
  save();draw();msg(expired?'Tiempo agotado. Se ha corregido el simulacro.':'Sesión finalizada')}
 function result(){const s=app.session;if(!s)return{ok:0,bad:0,manual:0,seen:0};let ok=0,bad=0,ungraded=0,seen=0;for(const id of s.ids){const q=byId[id];if(s.answers[id]?.length||s.written?.[id]&&Object.keys(s.written[id]).length||s.reviewed[id])seen++;if(manual(q)){if(s.manual[id]===true)ok++;else if(s.manual[id]===false)bad++;else ungraded++}else if(s.submitted[id]){if(grade(q))ok++;else bad++}}return{ok,bad,ungraded,seen,pct:ok+bad?Math.round(ok*100/(ok+bad)):null}}
 function normalizeAns(v){return String(v||'').toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/^[\s.,;()'\"]+|[\s.,;()'\"]+$/g,'').replace(/\s+/g,' ').trim()}
+function removeLabelPrefix(node,regex){
+ const match=(node.textContent||'').match(regex);
+ if(!match)return;
+ let chars=match[0].length;
+ const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT),textNodes=[];
+ while(walker.nextNode())textNodes.push(walker.currentNode);
+ for(const piece of textNodes){if(chars<=0)break;const value=piece.nodeValue||'';
+  if(value.length<=chars){chars-=value.length;piece.nodeValue=''}
+  else{piece.nodeValue=value.slice(chars);chars=0}
+ }
+ node.querySelectorAll('strong,b,em,span').forEach(child=>{if(!child.textContent.trim()&&!child.querySelector('img'))child.remove()});
+}
 function splitRationale(q){
  const holder=document.createElement('div');holder.innerHTML=q.explanation||'';
- const out={correct:[],wrong:[]};let where='correct',hasWrong=false;
+ const out={correct:[],wrong:[]};let where='correct';
  const titleCorrect=/^(respuestas? correctas?|opci[oó]n correcta|an[aá]lisis detallado para las? (opciones?|respuestas?) correctas?)\s*[:：]?$/i;
  const titleWrong=/^(opciones? incorrectas|respuestas? incorrectas|por qu[eé] (son )?incorrectas las (dem[aá]s|otras).*|por qu[eé] las (dem[aá]s|otras) opciones son incorrectas.*|an[aá]lisis detallado (para las? (opciones?|respuestas?) incorrectas?|de la(s)? opci[oó]n(es)? incorrectas?).*)\s*[:：]?$/i;
- for(const el of [...holder.children]){
-  const txt=(el.textContent||'').replace(/\s+/g,' ').trim();
-  if(!txt)continue;
-  if(titleWrong.test(txt)){where='wrong';hasWrong=true;continue}
+ for(const node of [...holder.children]){
+  const txt=(node.textContent||'').replace(/\s+/g,' ').trim();
+  if(!txt&&!node.querySelector('img'))continue;
+  if(titleWrong.test(txt)){where='wrong';continue}
   if(titleCorrect.test(txt))continue;
   if(/^an[aá]lisis detallado para (la capa|el equipo|notebook|model|pipeline|la entidad|las opciones correctas)/i.test(txt)&&txt.length<125){where='correct';continue}
-  // En el DOCX abundan rótulos "Documentación oficial:" sin ningún vínculo real.
   if(/^([•▪-]\s*)?documentaci[oó]n oficial\s*:/i.test(txt))continue;
-  // Algunos apartados marcan esta transición con negritas más elaboradas.
-  if(/^(opciones|alternativas) (no |in)correctas?\b/i.test(txt)&&txt.length<75){where='wrong';hasWrong=true;continue}
-  // Los enlaces de documentación no se inventan: solo se mantiene el argumento presente en el documento.
-  out[where].push(el.outerHTML);
+  if(/^(opciones|alternativas) (no |in)correctas?\b/i.test(txt)&&txt.length<75){where='wrong';continue}
+  if(where==='wrong'){
+   // La X identifica visualmente cada distractor. Se suprime la etiqueta repetida,
+   // pero se conserva el argumento del documento, incluidos los énfasis originales.
+   if(/^(?:opci[oó]n\s+)?[A-H]\s*[.):-]\s*\S/i.test(txt)){
+    node.classList.add('wrong-option-heading');
+    const cross=document.createElement('span');cross.className='wrong-cross';cross.setAttribute('aria-hidden','true');cross.textContent='✕';
+    node.prepend(cross);
+   }else if(/^por qu[eé] es incorrect[ao]\s*:/i.test(txt)){
+    removeLabelPrefix(node,/^\s*por qu[eé] es incorrect[ao]\s*:\s*/i);
+    node.classList.add('wrong-option-reason');
+   }
+  }
+  out[where].push(node.outerHTML);
  }
  const result={correct:out.correct.join(''),wrong:out.wrong.join('')};
  if(!result.correct)result.correct='<p>El documento no ofrece una justificación independiente para esta respuesta.</p>';
  if(!result.wrong)result.wrong='<p>En el material aportado no hay un desglose independiente de los distractores para este ejercicio. No se añaden explicaciones inventadas.</p>';
  return result;
 }
+const CASE_TABS=[{id:'resumen',label:'Resumen'},{id:'entorno',label:'Entorno existente'},{id:'problemas',label:'Problemas'},{id:'requisitos',label:'Requisitos'},{id:'instrucciones',label:'Instrucciones'},{id:'todo',label:'Todo el caso'}];
+function casePanels(context){
+ if(casePanelCache.has(context))return casePanelCache.get(context);
+ const container=document.createElement('div');container.innerHTML=context;
+ const sections={resumen:[],entorno:[],problemas:[],requisitos:[],instrucciones:[]};
+ let group='instrucciones';
+ for(const node of [...container.children]){
+  const txt=(node.textContent||'').replace(/\s+/g,' ').trim();
+  if(/^resumen\s*[.\-–—]/i.test(txt)&&txt.length<110)group='resumen';
+  else if(/^(entorno existente\s*[.\-–—]\s*)?problemas?(\s+de\s+\w+)?\s*[–—-]?$/i.test(txt)&&txt.length<115)group='problemas';
+  else if(/^entorno existente\s*[.\-–—]/i.test(txt)&&txt.length<115)group='entorno';
+  else if(/^requisitos\s*[.\-–—]/i.test(txt)&&txt.length<115)group='requisitos';
+  else if(/^(caso de estudio|para comenzar el caso de estudio|hotspot|arrastrar y soltar)\s*[–—-]?$/i.test(txt)&&txt.length<110)group='instrucciones';
+  const isHeader=txt.length<115&&/^(resumen|entorno existente|requisitos|problemas|caso de estudio|para comenzar el caso de estudio)/i.test(txt);
+  if(isHeader){const heading=document.createElement('h4');heading.className='case-subheading';heading.textContent=txt;sections[group].push(heading.outerHTML)}
+  else sections[group].push(node.outerHTML);
+ }
+ const result=Object.fromEntries(Object.entries(sections).map(([key,val])=>[key,val.join('')]));
+ result.todo=context;casePanelCache.set(context,result);return result;
+}
+function renderCaseTabs(q){
+ const panels=casePanels(q.context),tabs=CASE_TABS.filter(t=>Boolean(panels[t.id]));
+ const name=caseName(q),chosen=caseTabByName[name];const active=tabs.some(t=>t.id===chosen)?chosen:'resumen';
+ const markup=tabs.map(t=>`<button type="button" role="tab" data-case-tab="${t.id}" id="case-tab-${t.id}" aria-controls="case-tab-content" aria-selected="${t.id===active}" tabindex="${t.id===active?0:-1}" class="case-tab${t.id===active?' selected':''}">${t.label}</button>`).join('');
+ return `<section class="case-panel mb" aria-label="Información del caso ${esc(name)}"><div class="case-tab-bar" role="tablist" aria-label="Apartados del caso">${markup}</div><div id="case-tab-content" class="case-content question-text" role="tabpanel" aria-labelledby="case-tab-${active}">${panels[active]}</div></section>`;
+}
+function wireCaseTabs(q){if(!q.context||!q.caseStudy)return;
+ const panels=casePanels(q.context),name=caseName(q);
+ document.querySelectorAll('[data-case-tab]').forEach(b=>b.addEventListener('click',()=>{
+  caseTabByName[name]=b.dataset.caseTab;
+  document.querySelectorAll('[data-case-tab]').forEach(t=>{const active=t===b;t.classList.toggle('selected',active);t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1});
+  const content=$('#case-tab-content');content.innerHTML=panels[b.dataset.caseTab]||'';content.setAttribute('aria-labelledby',b.id);
+  content.querySelectorAll('.doc-image').forEach(img=>img.onclick=()=>{const v=$('#imageViewer');$('#viewerImg').src=img.src;v.classList.remove('hidden')});
+ }));
+}
+
 function practice(){let s=app.session;if(!s){navigate('home');return}const q=current();if(!q){navigate('home');return}let n=s.ids.length;const r=result();
- let html=`<div class="eyebrow">${s.mode==='exam'?'SIMULACRO CRONOMETRADO':'MODO PRÁCTICA'}</div><div class="question-top"><h1 class="question-title">Pregunta ${s.i+1} de ${n} <span class="muted small">· Original #${q.id}</span></h1><div class="row"><span class="pill" id="clock">${s.mode==='exam'?(s.finished?'Finalizado':'⏱ '+fmtTime(timeLeft())):'Sin límite de tiempo'}</span><button class="btn sm" id="bookmark">${app.stars.includes(q.id)?'★ Favorita':'☆ Guardar'}</button></div></div><div class="progress"><div style="width:${Math.round(100*(s.i+1)/n)}%"></div></div>`;
+ let html=`<div class="eyebrow">${s.mode==='exam'?(timeLeft()===null?'SIMULACRO SIN LÍMITE':'SIMULACRO CRONOMETRADO'):'MODO PRÁCTICA'}</div><div class="question-top"><h1 class="question-title">Pregunta ${s.i+1} de ${n} <span class="muted small">· Original #${q.id}</span></h1><div class="row"><span class="pill" id="clock">${s.mode==='exam'?(s.finished?'Finalizado':timeLeft()===null?'Sin límite de tiempo':'⏱ '+fmtTime(timeLeft())):'Sin límite de tiempo'}</span><button class="btn sm" id="bookmark">${app.stars.includes(q.id)?'★ Favorita':'☆ Guardar'}</button></div></div><div class="progress"><div style="width:${Math.round(100*(s.i+1)/n)}%"></div></div>`;
  if(s.finished)html+=`<div class="card pad mb"><div class="between row"><div><strong>Sesión completada</strong><div class="small muted">${r.ok} aciertos · ${r.bad} fallos · ${r.ungraded} pendientes de revisión guiada</div></div><button class="btn sm" id="backHome">Volver al inicio</button></div></div>`;
  html+=`<section class="card pad"><div class="tag-row mb"><span class="chip">${esc(q.topic)}</span><span class="chip ${manual(q)?'warn':''}">${esc(lbl(q))}</span>${q.caseStudy?'<span class="chip">Caso de estudio</span>':''}${q.repeated?'<span class="chip warn">Marcada como repetida en origen</span>':''}</div>`;
  if(q.caseStudy){const name=caseName(q);const members=s.ids.filter(id=>caseName(byId[id])===name);const at=members.indexOf(q.id)+1;html+=`<div class="case-heading"><strong>${esc(name)}</strong><span>Pregunta ${at} de ${members.length} de este caso</span></div>`}
- if(q.context)html+=`<details class="scenario" ${q.caseStudy?'open':''}><summary>Consultar escenario y requisitos del caso</summary><div class="question-text">${q.context}</div></details>`;
+ if(q.context)html+=q.caseStudy?renderCaseTabs(q):`<details class="scenario"><summary>Consultar escenario y requisitos del caso</summary><div class="question-text">${q.context}</div></details>`;
  const visibleStem=q.stem.replace(/<img\b[^>]*>/gi,'').replace(/<p>\s*<\/p>/gi,'');
  const illustrations=[...q.stem.matchAll(/<img\b[^>]*>/gi)].map(x=>x[0]);
  html+=`<div class="question-text">${slotsFor(q).length?visibleStem:q.stem}</div>`;
@@ -115,7 +178,8 @@ function practice(){let s=app.session;if(!s){navigate('home');return}const q=cur
   for(const op of q.options){const chosen=(s.answers[q.id]||[]).includes(op.key),isKey=q.correct.includes(op.key),show=s.finished||s.mode==='practice'&&graded(q),cl=(show&&isKey?' good':show&&chosen&&!isKey?' bad':chosen?' active':'');
     html+=`<button class="option${cl}" data-opt="${op.key}" ${(s.finished||graded(q))?'disabled':''}><span class="optkey">${op.key}</span><span class="option-content">${op.html}</span></button>`}
   html+='</div>';
-  if(q.type==='multiple')html+='<p class="markline">Selecciona todas las opciones correctas.</p>';
+  if(q.type==='multiple')html+='<p class="markline">Selecciona todas las opciones correctas. En práctica, pulsa de nuevo una opción seleccionada para comprobar cuando hayas elegido todas.</p>';
+  else if(!s.finished&&s.mode==='practice'&&!graded(q))html+='<p class="markline">Pulsa una opción para seleccionarla y vuelve a pulsar la misma para comprobarla.</p>';
  }else if(slotsFor(q).length){
    const fields=slotsFor(q),vals=s.written?.[q.id]||{};
    html+='<div class="fill-quiz"><p class="fill-title">Completa las respuestas</p><p class="small muted">'+(fields.every(f=>f.kind==='boolean'||f.choices?.length)?'Selecciona una opción en cada campo. La corrección se realiza automáticamente.':'Responde en texto sin ver la solución. Después compara cada campo y autoevalúa respuestas equivalentes, sin penalizar sinónimos.')+'</p>';
@@ -143,6 +207,7 @@ function practice(){let s=app.session;if(!s){navigate('home');return}const q=cur
  $('#main').innerHTML=`<div class="wrap">${html}</div>`;
  $('#bookmark').onclick=()=>{app.stars=app.stars.includes(q.id)?app.stars.filter(x=>x!==q.id):[...app.stars,q.id];save();draw()};
  document.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>selectOption(b.dataset.opt));
+ wireCaseTabs(q);
  if($('#submit'))$('#submit').onclick=submit;if($('#markReviewed'))$('#markReviewed').onclick=reviewed;
  document.querySelectorAll('[data-fill]').forEach(f=>{f.oninput=e=>setWritten(Number(f.dataset.fill),e.target.value);f.onchange=e=>setWritten(Number(f.dataset.fill),e.target.value)});
  if(show){const details=splitRationale(q);
