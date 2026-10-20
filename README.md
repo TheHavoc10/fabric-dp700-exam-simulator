@@ -1,39 +1,45 @@
-# Simulador de certificación Microsoft Fabric DP-700
+# Simulador Microsoft Fabric DP-700
 
-Aplicación web de estudio en español para la certificación **Microsoft Fabric Data Engineer Associate (DP-700)**, independiente del [simulador Databricks](https://github.com/TheHavoc10/databricks-data-engineer-associate-simulator).
+Simulador web en español de preparación para **Microsoft Certified: Fabric Data Engineer Associate (DP-700)**, inspirado en la experiencia del [simulador de Databricks](https://github.com/TheHavoc10/databricks-data-engineer-associate-simulator) y desarrollado como proyecto independiente.
 
 ## Acceso
 
-Una vez habilitado GitHub Pages, la URL de la aplicación será:
+- **Web:** https://thehavoc10.github.io/fabric-dp700-exam-simulator/
+- Para publicar o comprobar el despliegue: [GitHub Actions](https://github.com/TheHavoc10/fabric-dp700-exam-simulator/actions). GitHub Pages debe estar configurado para usar **GitHub Actions**.
 
-**https://thehavoc10.github.io/fabric-dp700-exam-simulator/**
+## Funcionalidades
 
-Si GitHub Pages aún no está activo, en **Settings → Pages → Build and deployment** selecciona **GitHub Actions** y ejecuta de nuevo la acción `Publicar simulador DP-700`.
+- 139 preguntas del documento facilitado: 88 de opción única, 8 multirrespuesta y 43 originalmente visuales.
+- **Explicaciones bajo demanda y separadas**: «¿Por qué es correcta?» y «¿Por qué son incorrectas las demás?». Inicialmente no se muestra ninguna de ellas. No se repiten los rótulos vacíos «Documentación oficial» del documento.
+- **Los 43 ejercicios visuales ahora tienen controles de respuesta**: casillas de texto o selector Sí/No según el formato. 7 ejercicios formados por Sí/No pueden puntuarse automáticamente; 36 ejercicios con campos de texto se comparan con la solución y permiten autoevaluación para no penalizar respuestas equivalentes. Si una tabla, esquema o fragmento de código era necesario, se conserva su captura **en un panel desplegable opcional**.
+- Modo práctica y modo simulacro cronometrado. Casos prácticos agrupados sin romper su contexto compartido (Contoso y Litware).
+- **Guía DP-700 de 6 bloques**, con los temas del documento, decisiones típicas y puntos de atención.
+- **38 términos de repaso**, con búsqueda, filtros temáticos y fichas de definición ocultas hasta pulsar.
+- Seguimiento de aciertos, errores, favoritos, historial y rendimiento por temática; exportación e importación JSON.
+- Compatible con móvil y escritorio. El progreso permanece en el almacenamiento local del navegador con una clave independiente de Databricks.
 
-## Contenido
+## Ficheros principales
 
-- **139 preguntas numeradas** extraídas del DOCX aportado por el usuario, con sus explicaciones originales.
-- 88 con opción única, 8 de selección múltiple y 43 ejercicios de revisión manual (hotspot, tablas, opciones incompletas u otros formatos no evaluables automáticamente).
-- Casos prácticos con contexto consultable, agrupados por escenario sin repartir preguntas de un mismo caso entre otras preguntas. Contoso y Litware contienen 10 y 9 preguntas respectivamente.
-- 130 imágenes originales optimizadas y embebidas en JavaScript para reducir dependencias externas, conservando su visualización ampliada.
-- Modo práctica, modo examen con temporizador, favoritos, búsqueda, revisión de errores y análisis por temática.
-- Progreso local en `localStorage`; exportación e importación a JSON. No se comparte progreso con el simulador Databricks.
-- Se puede utilizar desde móvil u ordenador, sin necesidad de servidor.
+- `index.html`: estructura y menús.
+- `app.js`: aplicación interactiva y corrección.
+- `style.css`: estilos adaptables.
+- `study-data.js`: guía y glosario de conceptos.
+- `special-answers.js`: descripciones y claves de respuesta para ejercicios visuales, extraídas de la solución del Word.
+- `site-chunks/`: banco de preguntas y recursos gráficos optimizados.
 
-## Estructura
+Se puede ejecutar localmente con un servidor estático (`python -m http.server 8000`).
 
-`index.html`, `style.css` y `app.js` forman la aplicación. La carpeta `site-chunks/` contiene los archivos JS del banco de preguntas y los recursos visuales. El documento de origen **no se almacena en este repositorio**. Los archivos `questions.json`, `build_bank.py` y `audit.json` se utilizan en el proceso local de extracción y revisión, y no son necesarios para desplegar el sitio.
+## Origen de las soluciones y límites
 
-Para ejecutar localmente la versión publicada:
+Las preguntas, sus respuestas y las justificaciones proceden **del documento aportado**. Esta versión **no ha contrastado una por una las claves con la documentación vigente de Microsoft Learn** y no inventa fuentes ni distractores. Si el texto original no desglosa por qué son incorrectas las alternativas, así se indica. Los campos escritos de ejercicios especiales requieren autoevaluación orientativa y sus soluciones se muestran después de responder.
 
-```bash
-python -m http.server 8000
-```
+Este producto **no es un examen oficial de Microsoft**.
 
-Abre `http://localhost:8000/`.
+## Versión 2: experiencia de estudio
 
-## Consideraciones sobre respuestas
+- Las explicaciones aparecen **cerradas al principio** y se dividen en dos controles: «¿Por qué es correcta?» y «¿Por qué son incorrectas las demás?». Se omiten los repetitivos rótulos de documentación sin URL presentes en el documento de origen.
+- Los **43 ejercicios originalmente gráficos** cuentan con campos de respuesta que permiten interactuar desde el navegador. Las preguntas de Sí/No y los ejercicios con alternativas transcritas del documento se corrigen automáticamente. Las preguntas de entrada libre requieren **evaluación guiada** para no penalizar sinónimos ni formulaciones correctas diferentes.
+- Las ilustraciones originales permanecen disponibles como referencia opcional, con las capturas del área de respuesta ocultas de entrada.
+- Nuevas secciones **Guía DP-700** y **Términos de repaso**, con búsqueda y tarjetas de conceptos. La guía es orientativa; consulta la [guía oficial de aptitudes del DP-700](https://learn.microsoft.com/es-es/credentials/certifications/resources/study-guides/dp-700) para los objetivos vigentes.
 
-La información y las respuestas proceden **exclusivamente del documento aportado** y no se han verificado individualmente contra la documentación vigente de Microsoft. Las preguntas gráficas o las que no permiten una interpretación fiable del formato de respuesta **se muestran para revisión manual**, sin inventar respuestas automáticas.
-
-Este simulador **no es un producto ni examen oficial de Microsoft**.
+En las preguntas convertidas de capturas a campos de respuesta se ha procurado mantener el contenido y las claves del Word. Las preguntas que dependen de gráficos para conocer los datos siguen teniendo las imágenes disponibles como apoyo, y no se han inventado distractores para los campos abiertos.
