@@ -18,7 +18,7 @@ window.DP700_REPLICAS={
   117:{mode:'mapping',label:'Elige la condición y el método de notificación'},
   135:{mode:'mapping',label:'Selecciona el patrón de carga de datos'},
   138:{mode:'mapping',label:'Selecciona las herramientas de supervisión y alerta'},
-  37:{mode:'sequence',label:'Ordena las acciones en la secuencia correcta',pool:["DROP CONSTRAINT PK_DimCustomer","ADD CONSTRAINT PK_DimCustomer PRIMARY KEY NONCLUSTERED (CustomerKey)","NOT ENFORCED","ALTER TABLE dbo.DimCustomer","ADD CONSTRAINT PK_DimCustomer PRIMARY KEY CLUSTERED (CustomerKey)","ENFORCED"],keepFirstImage:false},
+  37:{mode:'sequence',label:'Ordena las acciones en la secuencia correcta',keepFirstImage:true,pool:["DROP CONSTRAINT PK_DimCustomer","ADD CONSTRAINT PK_DimCustomer PRIMARY KEY NONCLUSTERED (CustomerKey)","NOT ENFORCED","ALTER TABLE dbo.DimCustomer","ADD CONSTRAINT PK_DimCustomer PRIMARY KEY CLUSTERED (CustomerKey)","ENFORCED"],keepFirstImage:false},
   93:{mode:'sequence',label:'Ordena las acciones en la secuencia correcta',pool:["Add a ForEach activity to iterate over the list of tables and copy the source data to the lakehouse Delta tables.","Add a Get metadata activity to query Control.Object and generate a list of schemas and tables to copy.","Add an Until activity to iterate over the list of tables and copy the source data to the lakehouse Delta tables.","Add a Lookup activity to query Control.Object and generate a list of the schemas and tables to copy.","Add a Copy data activity as an inner activity to the iterator activity."],keepFirstImage:true},
   89:{mode:'mapping',label:'Elige cómo modelar productos y definir la clave de unión'},
   126:{mode:'mapping',label:'Asigna el acceso de menor privilegio a cada identidad',keepFirstImage:true},
