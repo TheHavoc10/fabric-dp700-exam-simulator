@@ -28,7 +28,7 @@
       h+='<div class="replica-map">';
       fields.forEach((f,i)=>h+='<label class="replica-map-row"><span>'+esc(f.label)+'</span>'+sel(f,i,vals[i]||'',disabled)+'</label>');h+='</div>';
     }else if(mode==='match'||mode==='sequence'){
-      if(c.keepFirstImage){const images=[...q.stem.matchAll(/<img\\b[^>]*>/gi)];if(images.length)h+='<div class="replica-table"><span class="replica-hint">Datos del enunciado original</span>'+images[0][0]+'</div>';}
+      if(c.keepFirstImage){const images=[...q.stem.matchAll(/<img\b[^>]*>/gi)];if(images.length)h+='<div class="replica-table"><span class="replica-hint">Datos del enunciado original</span>'+images[0][0]+'</div>';}
       const choices=(c.pool||[...new Set(fields.flatMap(f=>f.choices||[]))]);
       h+='<div class="replica-drag-layout"><div class="replica-pool"><strong>Opciones disponibles</strong><p class="replica-hint">Toca una tarjeta y después su destino; en ordenador también puedes arrastrarla.</p><div class="replica-source-grid">';
       for(const opt of choices)h+='<button type="button" class="replica-token" data-replica-token="'+esc(opt)+'" draggable="'+(!disabled)+'" '+(disabled?'disabled':'')+'>'+esc(opt)+'</button>';
