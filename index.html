@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172b46"><meta name="description" content="Simulador de preparación para Microsoft Fabric DP-700 con 139 preguntas, casos de estudio y seguimiento de errores.">
+<title>Microsoft Fabric DP-700 · Simulador de examen</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app" class="app">
+<aside class="sidebar">
+  <div class="brand"><span class="logo">F</span><div><strong>Fabric DP-700</strong><small>Simulador de certificación</small></div></div>
+  <div class="sidebar-section-label">PREPARACIÓN</div>
+  <nav class="navigation" id="navigation">
+    <button data-page="home" class="navbtn selected">⌂ <span>Inicio</span></button>
+    <button data-page="questions" class="navbtn">☷ <span>Banco de preguntas</span></button>
+    <button data-page="errors" class="navbtn">↻ <span>Repasar errores</span></button>
+    <button data-page="favs" class="navbtn">☆ <span>Favoritas</span></button>
+    <button data-page="stats" class="navbtn">▥ <span>Estadísticas</span></button>
+    <button data-page="settings" class="navbtn">⚙ <span>Datos y ajustes</span></button>
+  </nav>
+  <div class="side-spacer"></div>
+  <div class="side-summary" id="sideSummary"></div>
+  <small class="side-note">Proyecto de estudio independiente · Respuestas según el documento adjunto; no es un examen oficial de Microsoft.</small>
+</aside>
+<main id="main" class="main" tabindex="-1"></main>
+</div>
+<div id="imageViewer" class="image-viewer hidden" role="dialog" aria-modal="true" aria-label="Ampliación de imagen"><button id="closeViewer" aria-label="Cerrar imagen">×</button><img id="viewerImg" alt="Imagen ampliada"></div>
+<div id="toast" class="toast" aria-live="polite"></div>
+<script src="questions.js"></script><script src="app.js"></script>
+</body></html>
