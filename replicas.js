@@ -10,6 +10,14 @@ window.DP700_REPLICAS={
       pool:['AuthorSales','AuthorEmail','AuthorSales.AuthorEmail','BLOCK','FILTER','INLINE','SCHEMABINDING','USER_NAME()']},
   73:{mode:'match',label:'Completa la orquestación dinámica de notebooks',keepFirstImage:true,
       pool:['activities','broadcast','dependencies','execute','notebooks','runMultiple']},
+  25:{mode:'mapping',label:'Elige cómo ejecutar cada elemento de Fabric',keepFirstImage:true},
+  47:{mode:'mapping',label:'Selecciona el origen y el filtrado del eventstream'},
+  90:{mode:'mapping',label:'Asigna la herramienta adecuada a cada equipo'},
+  91:{mode:'mapping',label:'Selecciona la herramienta adecuada para cada conjunto de datos'},
+  104:{mode:'mapping',label:'Asigna cada fuente al mecanismo de ingesta',keepFirstImage:true},
+  117:{mode:'mapping',label:'Elige la condición y el método de notificación'},
+  135:{mode:'mapping',label:'Selecciona el patrón de carga de datos'},
+  138:{mode:'mapping',label:'Selecciona las herramientas de supervisión y alerta'},
   12:{mode:'code',label:'Completa la consulta T-SQL',
     preamble:'La tabla de referencia y las columnas se mantienen visibles.',
     code:'{{0}}(SO.ModifiedDate) AS OrderDate,\n    P.Name AS ProductName,\n    SUM(SO.OrderQty) AS OrderQty\nFROM dbo.SalesOrderDetail AS SO\nINNER JOIN dbo.Product AS P\n    ON P.ProductID = SO.ProductID\nGROUP BY {{1}}\nORDER BY OrderDate;',
@@ -34,6 +42,12 @@ window.DP700_REPLICAS={
  for(const id of [69,73]){
    const item=window.DP700_INTERACTIVE?.[id],replica=window.DP700_REPLICAS[id];
    if(item&&replica)item.fields.forEach(f=>{f.choices=[...replica.pool]});
+ }
+
+ const choicesByQuestion={"25":[["Add Notebook1 to an Apache Spark job definition.","Add Notebook1 to Pipeline1.","From Real-Time hub, configure the execution of Notebook1."],["Add Notebook2 to an Apache Spark job definition.","Add Notebook2 to Pipeline1.","From Real-Time hub, configure the execution of Notebook2."],["Add Pipeline1 to an Apache Spark job definition.","Configure the execution of Pipeline1 by using a schedule.","From Real-Time hub, configure the execution of Pipeline1."],["Add Model1 to Pipeline1.","From Real-Time hub, configure Model1 to refresh.","Set Keep your Direct Lake data up to date to On."]],"47":[["A data pipeline","A Dataflow Gen2 dataflow","An eventstream with a custom endpoint","An eventstream with an external data source"],["A Filter activity in a data pipeline","A filter in a Dataflow Gen2 dataflow","A KQL statement","An eventstream processor"]],"90":[["Data pipelines","Notebooks","Dataflow Gen2 dataflow"],["Data pipelines","Notebooks","Dataflow Gen2 dataflow"],["Data pipelines","Notebooks","Dataflow Gen2 dataflow"]],"91":[["Dataflow Gen2 dataflow","A notebook","A T-SQL statement"],["Dataflow Gen2 dataflow","A notebook","A T-SQL statement"],["Dataflow Gen2 dataflow","A KQL queryset","A T-SQL statement"]],"104":[["Apache Spark Structured Streaming","An eventstream","A data pipeline","A streaming dataflow"],["Apache Spark Structured Streaming","An eventstream","A data pipeline","A streaming dataflow"],["Apache Spark Structured Streaming","An eventstream","A data pipeline","A streaming dataflow"]],"117":[["A Fail activity","An If condition activity","An On failure dependency condition","An On completion dependency condition"],["A Teams activity","An Invoke pipeline activity","An Office365Outlook activity"]],"135":[["Full","Incremental","Snapshot"],["Full","Incremental","Snapshot"]],"138":[["Monitor hub","Azure Monitor","Real-Time Intelligence monitoring"],["A Microsoft Power Automate flow","A Web activity","A Fabric Activator action","A Data Factory trigger"]]};
+ for(const [key,arr] of Object.entries(choicesByQuestion)){
+   const item=window.DP700_INTERACTIVE?.[key];if(!item)continue;
+   item.fields.forEach((field,i)=>{if(arr[i])field.choices=arr[i]});
  }
  // Pregunta 54: cinco imágenes: primera = tabla de contexto, siguientes cuatro = opciones A-D.
  // Se conservan los registros originales en imágenes; no se inventan ni se transcriben GUID.
