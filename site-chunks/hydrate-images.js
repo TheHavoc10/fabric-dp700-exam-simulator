@@ -1,0 +1,2 @@
+// Convertir rutas del documento en imágenes autocontenidas optimizadas.
+for(const q of window.DP700_QUESTIONS){for(const k of ['stem','context','explanation']){q[k]=q[k].replace(/src="(assets\/[^"\s]+)"/g,(m,path)=>'src="'+(window.DP700_IMAGES[path]||path)+'"')}}
