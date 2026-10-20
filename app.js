@@ -87,7 +87,7 @@ function start(idsOverride=null){let candidates=idsOverride?idsOverride.map(id=>
  app.session={mode:app.settings.mode,ids,i:0,answers:{},written:{},submitted:{},manual:{},reviewed:{},startedAt:Date.now(),minutes:app.settings.mode==='exam'&&app.settings.minutes!==''&&app.settings.minutes!==null?Math.max(10,Math.min(240,Number(app.settings.minutes)||10)):null,finished:false,summarySaved:false};save();navigate('practice')}
 
 function current(){const s=app.session;return s?byId[s.ids[s.i]]:null}
-function hasAnswer(q){const s=app.session;if(slotsFor(q).length)return slotsFor(q).every((v,i)=>String(s.written?.[q.id]?.[i]||'').trim());return q.needsManualReview?true:!!(s.answers[q.id]?.length)}
+function hasAnswer(q){const s=app.session;if(slotsFor(q).length)return slotsFor(q).every((v,i)=>String(s.written?.[q.id]?.[i]||'').trim());return q.needsManualReview?true:q.type==='multiple'?(s.answers[q.id]||[]).length===q.correct.length:!!(s.answers[q.id]?.length)}
 function graded(q){const s=app.session;return Boolean(s.submitted[q.id])}
 function grade(q){const s=app.session;if(slotsFor(q).length&&!manual(q))return slotsFor(q).every((f,i)=>normalizeAns(s.written?.[q.id]?.[i]||'')===normalizeAns(f.answer));const sel=s.answers[q.id]||[];return !manual(q)&&sel.length===q.correct.length&&sel.every(k=>q.correct.includes(k))}
 function record(q,good){const h=validHistory(q),had=!!(h.ok+h.bad);if(!had)h.firstCorrect=good;h[good?'ok':'bad']++;h.last=Date.now();h.lastCorrect=good;h.streak=good?(h.streak||0)+1:0;h.confidence=null;h.intervalDays=good?Math.min(14,Math.max(2,h.streak*2)):1;h.nextDueAt=Date.now()+h.intervalDays*DAY;app.history[q.id]=h;
