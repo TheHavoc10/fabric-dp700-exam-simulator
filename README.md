@@ -50,3 +50,16 @@ En las preguntas convertidas de capturas a campos de respuesta se ha procurado m
 - **Distractores más legibles**: el desplegable de opciones incorrectas muestra una ✕ roja junto a cada alternativa y elimina el rótulo repetido «Por qué es incorrecta:», conservando el argumento técnico del documento.
 - **Sin límite de tiempo por defecto**: el campo de minutos queda vacío y el simulacro no caduca; se puede introducir una duración entre 10 y 240 minutos para activar el cronómetro. Las preferencias antiguas que conservaban el valor predeterminado de 90 minutos se migran a «Sin límite de tiempo» sin alterar sesiones anteriores.
 - **Casos de estudio con pestañas**: Resumen, Entorno existente, Problemas, Requisitos, Instrucciones y Todo el caso (cuando existen esos apartados en el texto original). La selección de pestaña se conserva al pasar entre preguntas del mismo caso, sin perder respuestas.
+
+
+## Mejoras de paridad con el simulador Databricks (octubre de 2026)
+
+- **Mosaico de estado real**: verde al acertar, rojo al fallar, azul al seleccionar sin corregir; ámbar para revisión guiada. La pregunta actual tiene un borde destacado.
+- **Interfaz móvil remodelada**: encabezado compacto con menú desplegable, tema claro/oscuro/automático y controles fijos inferiores para navegar y comprobar respuestas. Compatible con zonas seguras del teléfono.
+- **Mismo gesto de corrección**: pulsar de nuevo la opción seleccionada equivale a «Comprobar» en práctica, igual que en Databricks.
+- **Estudio adaptativo**: práctica inteligente por temática y resultados, repetición espaciada y tres niveles de confianza «Lo sabía / Por descarte / No lo sabía».
+- **Resumen al finalizar** y pantalla separada para revisar las preguntas, con mosaico y estadísticas; evolución histórica de sesiones y diagnóstico por temas.
+- **Compartir progreso mediante enlace** (optativo) más exportación/importación JSON; ninguna información se almacena en un servidor de la aplicación.
+- **No se cambia la numeración, el contenido ni las respuestas del documento fuente.** Los ejercicios no evaluables automáticamente siguen diferenciados.
+
+La base del simulador DP-700 contiene modalidades gráficas y casos de estudio que no existen en el banco Databricks: no se trasplantan las funciones específicas de un examen distinto (por ejemplo, su sección de preguntas Databricks descatalogadas).
