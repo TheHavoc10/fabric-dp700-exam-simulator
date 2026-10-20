@@ -43,3 +43,10 @@ Este producto **no es un examen oficial de Microsoft**.
 - Nuevas secciones **Guía DP-700** y **Términos de repaso**, con búsqueda y tarjetas de conceptos. La guía es orientativa; consulta la [guía oficial de aptitudes del DP-700](https://learn.microsoft.com/es-es/credentials/certifications/resources/study-guides/dp-700) para los objetivos vigentes.
 
 En las preguntas convertidas de capturas a campos de respuesta se ha procurado mantener el contenido y las claves del Word. Las preguntas que dependen de gráficos para conocer los datos siguen teniendo las imágenes disponibles como apoyo, y no se han inventado distractores para los campos abiertos.
+
+## Versión 3: navegación y tiempos
+
+- **Comprobar con dos pulsaciones** sobre la misma respuesta en modo práctica, igual que en Databricks. En preguntas multirrespuesta, esto solo ocurre tras seleccionar el número necesario de alternativas. El botón «Comprobar respuesta» sigue disponible.
+- **Distractores más legibles**: el desplegable de opciones incorrectas muestra una ✕ roja junto a cada alternativa y elimina el rótulo repetido «Por qué es incorrecta:», conservando el argumento técnico del documento.
+- **Sin límite de tiempo por defecto**: el campo de minutos queda vacío y el simulacro no caduca; se puede introducir una duración entre 10 y 240 minutos para activar el cronómetro. Las preferencias antiguas que conservaban el valor predeterminado de 90 minutos se migran a «Sin límite de tiempo» sin alterar sesiones anteriores.
+- **Casos de estudio con pestañas**: Resumen, Entorno existente, Problemas, Requisitos, Instrucciones y Todo el caso (cuando existen esos apartados en el texto original). La selección de pestaña se conserva al pasar entre preguntas del mismo caso, sin perder respuestas.
