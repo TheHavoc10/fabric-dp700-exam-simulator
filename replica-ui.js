@@ -25,6 +25,7 @@
         const i=Number(match[1]);return fields[i]?sel(fields[i],i,vals[i]||'',disabled):esc(chunk);
       }).join('')+'</code></pre>';
     }else if(mode==='mapping'){
+      if(c.keepFirstImage){const images=[...q.stem.matchAll(/<img\b[^>]*>/gi)];if(images.length)h+='<div class="replica-table"><span class="replica-hint">Datos de referencia del enunciado</span>'+images[0][0]+'</div>';}
       h+='<div class="replica-map">';
       fields.forEach((f,i)=>h+='<label class="replica-map-row"><span>'+esc(f.label)+'</span>'+sel(f,i,vals[i]||'',disabled)+'</label>');h+='</div>';
     }else if(mode==='match'||mode==='sequence'){
