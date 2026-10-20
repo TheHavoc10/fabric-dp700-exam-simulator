@@ -4,6 +4,7 @@ const QUESTIONS=window.DP700_QUESTIONS||[];
 const STUDY=window.DP700_STUDY||{sections:[],terms:[]};
 const SPECIALS=window.DP700_SPECIALS||{};
 const INTERACTIVES=window.DP700_INTERACTIVE||{};
+const REPLICAS=window.DP700_REPLICAS||{};
 function slotsFor(q){const fields=SPECIALS[q.id]||[];const curated=INTERACTIVES[q.id]?.fields||[];
  return fields.map((f,i)=>{const choices=curated[i]?.choices;
   return choices?.length&&choices.some(c=>normalizeAns(c)===normalizeAns(f.answer))?{...f,choices}:f;
@@ -228,10 +229,15 @@ function practice(){let s=app.session;if(!s){navigate('home');return}const q=cur
  }else if(slotsFor(q).length){
    const fields=slotsFor(q),vals=s.written?.[q.id]||{};
    html+='<div class="fill-quiz"><p class="fill-title">Completa las respuestas</p><p class="small muted">'+(fields.every(f=>f.kind==='boolean'||f.choices?.length)?'Selecciona una opción en cada campo. La corrección se realiza automáticamente.':'Responde en texto sin ver la solución. Después compara cada campo y autoevalúa respuestas equivalentes, sin penalizar sinónimos.')+'</p>';
+   if(REPLICAS[q.id]&&window.DP700_UI){
+     html+=window.DP700_UI.render(q,fields,vals,s.finished||graded(q));
+   }else{
    if(INTERACTIVES[q.id]?.intro)html+=`<div class="form-intro">${INTERACTIVES[q.id].intro}</div>`;
    fields.forEach((f,i)=>{const ans=esc(vals[i]||''),disabled=s.finished||graded(q);
      html+=`<label class="fill-field"><span>${esc(f.label)}</span>${f.kind==='boolean'||f.choices?.length?`<select data-fill="${i}" ${disabled?'disabled':''}><option value="">Selecciona…</option>${(f.choices||['Sí','No']).map(x=>`<option value="${esc(x)}" ${String(vals[i]||'')===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`:`<input data-fill="${i}" value="${ans}" placeholder="Escribe tu respuesta" autocomplete="off" spellcheck="false" ${disabled?'disabled':''}>`}</label>`;
-   });html+='</div>';
+   });
+   }
+   html+='</div>';
  }else html+='<p class="source-warning">El original depende de material gráfico y requiere comparación manual con su solución.</p>';
  if(!s.finished){if(s.mode==='practice')html+=`<div class="row mt"><button class="btn primary" id="submit" ${(!hasAnswer(q)||graded(q))?'disabled':''}>${manual(q)?'Mostrar solución':'Comprobar respuesta'}</button></div>`;else if(manual(q))html+=`<div class="row mt"><button class="btn" id="markReviewed" ${s.reviewed[q.id]?'disabled':''}>${s.reviewed[q.id]?'✓ Revisada':'Marcar como revisada'}</button></div>`}
  const show=s.finished||s.mode==='practice'&&graded(q);
@@ -254,6 +260,7 @@ function practice(){let s=app.session;if(!s){navigate('home');return}const q=cur
  $('#bookmark').onclick=()=>{app.stars=app.stars.includes(q.id)?app.stars.filter(x=>x!==q.id):[...app.stars,q.id];save();draw()};
  document.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>selectOption(b.dataset.opt));
  wireCaseTabs(q);
+  if(REPLICAS[q.id]&&window.DP700_UI)window.DP700_UI.bind(q,{session:()=>app.session,fields:()=>slotsFor(q),setWritten,redraw:draw});
  if($('#submit'))$('#submit').onclick=submit;if($('#markReviewed'))$('#markReviewed').onclick=reviewed;
  document.querySelectorAll('[data-fill]').forEach(f=>{f.oninput=e=>setWritten(Number(f.dataset.fill),e.target.value);f.onchange=e=>setWritten(Number(f.dataset.fill),e.target.value)});
  if(show){const details=splitRationale(q);
