@@ -142,3 +142,29 @@
  body:has(.mobile-answer-dock) .footer-actions>.row{width:100%;display:block}
  body:has(.mobile-answer-dock) .footer-actions #endSession{width:100%;min-height:45px}
 }
+
+/* DP-700: contrast repair for dark appearance, including the question bank. */
+:root[data-theme="dark"] .qrow,
+:root[data-theme="dark"] .question-grid button:not(.q-tile),
+:root[data-theme="dark"] .empty {background:var(--card);color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .qrow strong {color:var(--ink)}
+:root[data-theme="dark"] .qrow small {color:var(--muted)}
+:root[data-theme="dark"] .qrow .btn {background:#223751;color:#eff5ff;border-color:#405571}
+:root[data-theme="dark"] .qrow .btn:hover {background:#304966;border-color:#8094d8}
+:root[data-theme="dark"] .optkey {background:#203347;border-color:#3b506a;color:var(--ink)}
+:root[data-theme="dark"] .doc-image {border-color:#3d526a}
+:root[data-theme="dark"] .confidence-active {background:#303f7c!important;color:white!important;border-color:#93a5f1!important}
+:root[data-theme="dark"] .source-warning {background:#332d20;color:#f0d6a2;border-color:#695838}
+:root[data-theme="dark"] .study-pick.selected,:root[data-theme="dark"] .pick.selected {background:#30385e;color:var(--ink);border-color:#8796ef}
+:root[data-theme="dark"] .question-grid button.q-tile.reviewed {background:#4a3926;color:#f5d795;border-color:#987643}
+:root[data-theme="dark"] .chip.good {background:#173e35;color:#9decca;border-color:#3c8667}
+:root[data-theme="dark"] .chip.bad {background:#452832;color:#ffa7b7;border-color:#925162}
+:root[data-theme="dark"] .chip.warn {background:#4a3926;color:#f5d795;border-color:#987643}
+:root[data-theme="dark"] .source-code {background:#0c1929;color:#e8f4ff;border:1px solid #384d66}
+:root[data-theme="dark"] .solution-row {background:#203347;color:var(--ink);border-color:var(--line)}
+:root[data-theme="dark"] .solution-row span {color:var(--muted)}
+:root[data-theme="dark"] .case-tab {color:#bed0e8}
+:root[data-theme="dark"] .case-tab:hover {background:#30445e;color:#f0f5ff}
+:root[data-theme="dark"] .case-tab.selected {background:#324377;color:#fff;border-bottom-color:#a8b5ff}
+:root[data-theme="dark"] .case-subheading {color:#c0d3f2}
+:root[data-theme="dark"] .why-btn[aria-expanded="true"] {background:#344467;color:#f3f7ff;border-color:#8796ef}
