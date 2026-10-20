@@ -5,7 +5,7 @@ const STUDY=window.DP700_STUDY||{sections:[],terms:[]};
 const SPECIALS=window.DP700_SPECIALS||{};
 const INTERACTIVES=window.DP700_INTERACTIVE||{};
 const REPLICAS=window.DP700_REPLICAS||{};
-function slotsFor(q){const fields=SPECIALS[q.id]||[];const curated=INTERACTIVES[q.id]?.fields||[];
+function slotsFor(q){if(q.id===54&&REPLICAS[54]?.mode==='image-cards')return [];const fields=SPECIALS[q.id]||[];const curated=INTERACTIVES[q.id]?.fields||[];
  return fields.map((f,i)=>{const choices=curated[i]?.choices;
   return choices?.length&&choices.some(c=>normalizeAns(c)===normalizeAns(f.answer))?{...f,choices}:f;
  });}
